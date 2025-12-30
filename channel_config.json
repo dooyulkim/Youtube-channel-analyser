@@ -1,0 +1,54 @@
+{
+  "channels": [
+    {
+      "name": "T-Series",
+      "id": "UCq-Fj5jknLsUf-MWSy4_brA",
+      "category": "Music"
+    },
+    {
+      "name": "MrBeast",
+      "id": "UCX6OQ3DkcsbYNE6H8uQQuVA",
+      "category": "Entertainment"
+    },
+    {
+      "name": "Cocomelon - Nursery Rhymes",
+      "id": "UCbCmjCuTUZos6Inko4u57UQ",
+      "category": "Kids"
+    },
+    {
+      "name": "SET India",
+      "id": "UCpEhnqL0y41EpW2TvWAHD7Q",
+      "category": "TV"
+    },
+    {
+      "name": "Kids Diana Show",
+      "id": "UCk8GzjMOrta8yxDcKfylJYw",
+      "category": "Kids"
+    },
+    {
+      "name": "Like Nastya",
+      "id": "UClG8odDC8TS6Zpqk9CGVQiQ",
+      "category": "Kids"
+    },
+    {
+      "name": "Vlad and Niki",
+      "id": "UCvlE5gTbOvjiolFlEm-c_Ow",
+      "category": "Kids"
+    },
+    {
+      "name": "PewDiePie",
+      "id": "UC-lHJZR3Gqxm24_Vd_AJ5Yw",
+      "category": "Gaming"
+    },
+    {
+      "name": "Zee Music Company",
+      "id": "UCffDXn7ycAzwL2LDlbyWOTw",
+      "category": "Music"
+    },
+    {
+      "name": "WWE",
+      "id": "UCJ5v_MCY6GNUBTO8-D3XoAg",
+      "category": "Sports"
+    }
+  ]
+}
