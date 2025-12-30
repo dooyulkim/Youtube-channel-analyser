@@ -8,17 +8,40 @@ This project provides a lightweight Node.js/TypeScript application that benchmar
 - Collects data on the most recent uploads (view counts, like counts, duration, publish date).
 - Generates derived insights such as posting frequency, engagement ratios, and video length trends.
 - Outputs a concise report directly in the terminal and saves machine-readable results to JSON/CSV.
+- Web dashboard built with React + TypeScript for visual analysis.
+- Dockerized deployment for easy local and cloud deployment.
+
+## Quick Start with Docker
+
+```bash
+# Set your API key
+echo "YOUTUBE_API_KEY=your_api_key_here" > .env
+
+# Build and start all services
+npm run docker:build
+npm run docker:up
+
+# Access the frontend at http://localhost:8080
+```
+
+For detailed Docker deployment instructions, see [DOCKER.md](DOCKER.md).
 
 ## Getting Started
 
 1. **Install dependencies**
    ```bash
+   # Install backend dependencies
+   cd backend
    npm install
+   cd ..
+   
+   # Or use root script to install all
+   npm run install:all
    ```
 
 2. **Set your YouTube Data API key**
    
-   Create a `.env` file (automatically loaded) with:
+   Create a `.env` file in the project root (automatically loaded) with:
    ```
    YOUTUBE_API_KEY=<YOUR_API_KEY>
    ```
@@ -40,7 +63,8 @@ This project provides a lightweight Node.js/TypeScript application that benchmar
 
 4. **Run the analyzer**
    ```bash
-   # Use your own list (channel_config.json)
+   # Use your own list (backend/channel_config.json)
+   cd backend
    npm start
    
    # Or run directly in development mode
@@ -52,7 +76,7 @@ This project provides a lightweight Node.js/TypeScript application that benchmar
 
 ## Configuration
 
-- `channel_config.json` lists channels (name + ID) that will be benchmarked when discovery is disabled. Update this file if you prefer a custom cohort.
+- `backend/channel_config.json` lists channels (name + ID) that will be benchmarked when discovery is disabled. Update this file if you prefer a custom cohort.
 - Each channel entry can optionally include a `"category"` (used for filtering in the React dashboard). Missing categories default to `Uncategorized` (or `Trending` when discovered automatically).
 - `--discover-channels` tells the CLI to pull popular channel IDs from the YouTube "most popular" video feed; combine it with `--channel-count` (default 50) and `--region-code` to control scope.
 - Command-line options let you override defaults such as the number of recent videos to analyze or the output format. Run `npm run analyze -- --help` for details.
@@ -61,22 +85,22 @@ This project provides a lightweight Node.js/TypeScript application that benchmar
 
 The script prints a ranked table in the terminal and writes two files:
 
-- `reports/channel_summary.json`: Raw metrics and derived KPIs for each channel.
-- `reports/channel_summary.csv`: Flattened table that can be opened in Excel/Sheets for further comparison.
+- `backend/reports/channel_summary.json`: Raw metrics and derived KPIs for each channel.
+- `backend/reports/channel_summary.csv`: Flattened table that can be opened in Excel/Sheets for further comparison.
 
 ## React Dashboard
 
-`webui/` hosts a Vite + React (TypeScript) SPA styled with Tailwind CSS +
+`frontend/` hosts a Vite + React (TypeScript) SPA styled with Tailwind CSS +
 shadcn/ui components for a cohesive dashboard experience.
 
 1. Export the fresh dataset straight into the web app:
    ```bash
-   npm run analyze -- --output-dir webui/public/data
+   npm run analyze -- --output-dir frontend/public/data
    ```
    (If you keep the JSON elsewhere, set `VITE_DATA_PATH` when starting Vite.)
 2. Install dependencies and launch the dev server:
    ```bash
-   cd webui
+   cd frontend
    npm install
    npm run dev
    ```
@@ -84,7 +108,7 @@ shadcn/ui components for a cohesive dashboard experience.
    ```bash
    npm run build
    ```
-   The static bundle is emitted to `webui/dist`.
+   The static bundle is emitted to `frontend/dist`.
 
 The dashboard offers search + category filters (fed by the `"category"` property), a sortable leaderboard, and quick links to each channel's latest upload—all using reusable shadcn/ui primitives you can extend for new views.
 
@@ -97,10 +121,10 @@ npm run analyze -- --help
 ```
 
 Available options:
-- `--channels <path>` - Path to channel configuration JSON file (default: channel_config.json)
+- `--channels <path>` - Path to channel configuration JSON file (default: backend/channel_config.json)
 - `--recent-videos <number>` - Number of recent videos to analyze per channel (default: 10, max: 50)
 - `--api-key <key>` - YouTube Data API key (or use YOUTUBE_API_KEY env var)
-- `--output-dir <path>` - Directory for JSON/CSV reports (default: reports)
+- `--output-dir <path>` - Directory for JSON/CSV reports (default: backend/reports)
 - `--skip-files` - Only print table, don't write files
 - `--channel-count <number>` - Maximum channels to analyze (default: 50)
 - `--discover-channels` - Auto-discover popular channels instead of using config file

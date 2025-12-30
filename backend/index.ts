@@ -9,7 +9,9 @@ import { analyzeChannel } from './analysis.js';
 import { printTable, writeReports, safePrint } from './reporting.js';
 import { ChannelEntry, ChannelSummary } from './models.js';
 
-// Load environment variables
+// Load environment variables from parent directory
+dotenv.config({ path: resolve(process.cwd(), '../.env') });
+// Also try current directory as fallback
 dotenv.config();
 
 async function main() {

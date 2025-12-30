@@ -1,19 +1,30 @@
 {
   "name": "youtube-channel-analyzer",
   "version": "1.0.0",
-  "description": "Benchmark popular YouTube channels using the YouTube Data API",
-  "main": "dist/index.js",
+  "description": "Benchmark popular YouTube channels using the YouTube Data API - Monorepo",
+  "private": true,
   "type": "module",
-  "bin": {
-    "analyze-channels": "./dist/index.js"
-  },
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx src/index.ts",
-    "analyze": "tsx src/index.ts",
-    "clean": "rimraf dist",
-    "prebuild": "npm run clean"
+    "backend:install": "cd backend && npm install",
+    "backend:build": "cd backend && npm run build",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:analyze": "cd backend && npm run analyze",
+    "frontend:install": "cd frontend && npm install",
+    "frontend:build": "cd frontend && npm run build",
+    "frontend:dev": "cd frontend && npm run dev",
+    "install:all": "npm run backend:install && npm run frontend:install",
+    "build": "npm run backend:build && npm run frontend:build",
+    "dev": "cd backend && npm run dev",
+    "analyze": "cd backend && npm run analyze",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart",
+    "docker:clean": "docker-compose down -v",
+    "deploy:gcp": "bash deploy-gcp.sh",
+    "deploy:gcp:windows": "powershell -ExecutionPolicy Bypass -File deploy-gcp.ps1",
+    "deploy:appengine": "npm run frontend:build && gcloud app deploy app.yaml"
   },
   "keywords": [
     "youtube",
@@ -23,18 +34,6 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "axios": "^1.6.5",
-    "commander": "^11.1.0",
-    "dotenv": "^16.3.1",
-    "https-proxy-agent": "^7.0.2"
-  },
-  "devDependencies": {
-    "@types/node": "^20.10.6",
-    "rimraf": "^5.0.5",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
-  },
   "engines": {
     "node": ">=18.0.0"
   }

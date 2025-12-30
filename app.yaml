@@ -1,0 +1,47 @@
+# App Engine Standard Environment configuration
+# Alternative to Cloud Run for simpler deployment
+
+runtime: nodejs18
+
+# Instance configuration
+instance_class: F1
+
+# Automatic scaling
+automatic_scaling:
+  min_instances: 0
+  max_instances: 5
+  target_cpu_utilization: 0.65
+
+# Environment variables (set via gcloud or in the console)
+env_variables:
+  NODE_ENV: 'production'
+
+# Handlers for static files and routing
+handlers:
+  # Serve static files from frontend/dist
+  - url: /assets
+    static_dir: frontend/dist/assets
+    secure: always
+
+  - url: /(.*\.(ico|png|jpg|jpeg|gif|svg|json|txt))$
+    static_files: frontend/dist/\1
+    upload: frontend/dist/.*\.(ico|png|jpg|jpeg|gif|svg|json|txt)$
+    secure: always
+
+  # Route all other requests to the index.html for client-side routing
+  - url: /.*
+    static_files: frontend/dist/index.html
+    upload: frontend/dist/index.html
+    secure: always
+
+# Files to skip uploading
+skip_files:
+  - ^(.*/)?#.*#$
+  - ^(.*/)?.*~$
+  - ^(.*/)?.*\.py[co]$
+  - ^(.*/)?.*/RCS/.*$
+  - ^(.*/)?\..*$
+  - ^(.*/)?node_modules/.*$
+  - ^(.*/)?backend/.*$
+  - ^(.*/)?tests?/.*$
+  - ^(.*/)?\.git/.*$

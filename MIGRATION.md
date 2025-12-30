@@ -7,7 +7,9 @@ Successfully transformed the YouTube Channel Analyzer from Python to Node.js/Typ
 
 ### New Node.js/TypeScript Files
 ```
-src/
+backend/
+├── package.json       - Backend dependencies and scripts
+├── tsconfig.json      - TypeScript configuration
 ├── index.ts           - Main CLI entry point (replaces analyze_channels.py)
 ├── models.ts          - TypeScript interfaces (replaces analyzer/models.py)
 ├── youtube.ts         - YouTube API client (replaces analyzer/youtube.py)
@@ -18,11 +20,17 @@ src/
 ├── formatters.ts      - Display formatters (replaces analyzer/formatters.py)
 ├── metrics.ts         - Metrics calculation (replaces analyzer/metrics.py)
 └── utils.ts           - Utility functions (replaces analyzer/utils.py)
+
+frontend/
+├── package.json       - Frontend dependencies and scripts
+└── (React/Vite files)
 ```
 
 ### Key Configuration Files
-- `package.json` - Node.js dependencies and scripts
-- `tsconfig.json` - TypeScript compiler configuration
+- `package.json` - Root monorepo scripts
+- `backend/package.json` - Backend Node.js dependencies and scripts
+- `backend/tsconfig.json` - TypeScript compiler configuration
+- `frontend/package.json` - Frontend dependencies and scripts
 - `.gitignore` - Updated for both Python and Node.js
 
 ## Technology Stack Changes
@@ -62,11 +70,19 @@ src/
 
 ### Install Dependencies
 ```bash
-npm install
+# Install backend dependencies
+cd backend && npm install
+
+# Or install all packages
+npm run install:all
 ```
 
 ### Build
 ```bash
+# Build backend only
+npm run backend:build
+
+# Or build everything
 npm run build
 ```
 
@@ -76,13 +92,22 @@ npm run build
 npm run analyze
 
 # Production mode (after build)
-npm start
+cd backend && npm start
 
 # With options
 npm run analyze -- --discover-channels --channel-count 100 --region-code US
 ```
 
 ### Available Scripts
+
+**Root scripts:**
+- `npm run install:all` - Install all dependencies (backend + frontend)
+- `npm run build` - Build everything
+- `npm run analyze` - Run analyzer (development mode)
+- `npm run backend:*` - Backend-specific commands
+- `npm run frontend:*` - Frontend-specific commands
+
+**Backend scripts (in backend/ directory):**
 - `npm run build` - Compile TypeScript to JavaScript
 - `npm start` - Run compiled JavaScript
 - `npm run dev` - Run TypeScript directly (development)

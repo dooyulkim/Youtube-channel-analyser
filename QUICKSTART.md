@@ -8,7 +8,13 @@
 
 ### 1. Install Dependencies
 ```bash
+# Install backend dependencies
+cd backend
 npm install
+cd ..
+
+# Or install all (backend + frontend)
+npm run install:all
 ```
 
 ### 2. Configure API Key
@@ -24,6 +30,7 @@ npm run analyze
 
 # Or build and run (production mode)
 npm run build
+cd backend
 npm start
 ```
 
@@ -31,7 +38,7 @@ npm start
 
 ### Analyze with custom channel list
 ```bash
-npm run analyze -- --channels channel_config.json
+npm run analyze -- --channels backend/channel_config.json
 ```
 
 ### Auto-discover top 50 US channels
@@ -46,12 +53,12 @@ npm run analyze -- --discover-channels --channel-count 100 --region-code GB
 
 ### Change output directory
 ```bash
-npm run analyze -- --output-dir custom-reports
+npm run analyze -- --output-dir backend/custom-reports
 ```
 
 ### Export data for web dashboard
 ```bash
-npm run analyze -- --output-dir webui/public/data
+npm run analyze -- --output-dir frontend/public/data
 ```
 
 ### Analyze more recent videos
@@ -78,14 +85,14 @@ T-Series                   | Music         | 254.0M | 245.0B  | 20500  | 5.2M   
 MrBeast                    | Entertainment | 230.0M | 45.0B   | 750    | 85.0M     | 3.2%       | 7.0d    | 15.2m
 ...
 
-Reports saved to: C:\...\reports
+Reports saved to: C:\...\backend\reports
 ```
 
 ## Output Files
 
 After running, you'll find:
-- `reports/channel_summary.json` - Detailed metrics in JSON format
-- `reports/channel_summary.csv` - Spreadsheet-compatible CSV file
+- `backend/reports/channel_summary.json` - Detailed metrics in JSON format
+- `backend/reports/channel_summary.csv` - Spreadsheet-compatible CSV file
 
 ## Troubleshooting
 
@@ -96,7 +103,7 @@ Make sure you've created a `.env` file with `YOUTUBE_API_KEY=your_key`
 Check that your API key is valid and has YouTube Data API v3 enabled
 
 ### "No channels were analyzed"
-Verify your `channel_config.json` has valid channel IDs
+Verify your `backend/channel_config.json` has valid channel IDs
 
 ### Build errors
 ```bash
@@ -110,10 +117,10 @@ npm run build
 To view results in the React dashboard:
 ```bash
 # Generate reports in web directory
-npm run analyze -- --output-dir webui/public/data
+npm run analyze -- --output-dir frontend/public/data
 
 # Start the web UI
-cd webui
+cd frontend
 npm install
 npm run dev
 ```

@@ -1,0 +1,50 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: youtube-analyzer-backend
+    environment:
+      - NODE_ENV=production
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+    volumes:
+      # Mount reports directory to persist data
+      - ./backend/reports:/backend/reports
+      # Mount channel config for easy updates
+      - ./backend/channel_config.json:/backend/channel_config.json:ro
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - youtube-analyzer-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: youtube-analyzer-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - youtube-analyzer-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+networks:
+  youtube-analyzer-network:
+    driver: bridge
+
+volumes:
+  reports:
+    driver: local
