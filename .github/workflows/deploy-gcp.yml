@@ -1,0 +1,129 @@
+name: Deploy to Google Cloud Platform
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+env:
+  GCP_REGION: us-central1
+  BACKEND_SERVICE: youtube-analyzer-backend
+  FRONTEND_SERVICE: youtube-analyzer-frontend
+
+jobs:
+  deploy:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write  # Required for workload identity federation
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+      
+      - name: Configure Docker for GCR
+        run: |
+          gcloud auth configure-docker
+      
+      - name: Enable required GCP APIs
+        run: |
+          gcloud services enable cloudbuild.googleapis.com \
+            run.googleapis.com \
+            containerregistry.googleapis.com \
+            artifactregistry.googleapis.com \
+            --quiet
+      
+      - name: Build and push backend image
+        run: |
+          gcloud builds submit backend/ \
+            --tag "gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.BACKEND_SERVICE }}" \
+            --quiet
+      
+      - name: Deploy backend to Cloud Run
+        run: |
+          gcloud run deploy "${{ env.BACKEND_SERVICE }}" \
+            --image "gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.BACKEND_SERVICE }}" \
+            --region "${{ env.GCP_REGION }}" \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 3000 \
+            --memory 512Mi \
+            --cpu 1 \
+            --min-instances 0 \
+            --max-instances 10 \
+            --set-env-vars "NODE_ENV=production,YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" \
+            --quiet
+      
+      - name: Get backend URL
+        id: backend
+        run: |
+          BACKEND_URL=$(gcloud run services describe "${{ env.BACKEND_SERVICE }}" \
+            --region "${{ env.GCP_REGION }}" \
+            --format="value(status.url)")
+          echo "url=$BACKEND_URL" >> $GITHUB_OUTPUT
+          echo "Backend URL: $BACKEND_URL"
+      
+      - name: Build and push frontend image
+        run: |
+          gcloud builds submit frontend/ \
+            --tag "gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}" \
+            --quiet
+      
+      - name: Deploy frontend to Cloud Run
+        run: |
+          gcloud run deploy "${{ env.FRONTEND_SERVICE }}" \
+            --image "gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}" \
+            --region "${{ env.GCP_REGION }}" \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 80 \
+            --memory 256Mi \
+            --cpu 1 \
+            --min-instances 0 \
+            --max-instances 10 \
+            --quiet
+      
+      - name: Get frontend URL
+        id: frontend
+        run: |
+          FRONTEND_URL=$(gcloud run services describe "${{ env.FRONTEND_SERVICE }}" \
+            --region "${{ env.GCP_REGION }}" \
+            --format="value(status.url)")
+          echo "url=$FRONTEND_URL" >> $GITHUB_OUTPUT
+          echo "Frontend URL: $FRONTEND_URL"
+      
+      - name: Deployment summary
+        run: |
+          echo "## 🚀 Deployment Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Service URLs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backend**: ${{ steps.backend.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend**: ${{ steps.frontend.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployment Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Region**: ${{ env.GCP_REGION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Project**: ${{ secrets.GCP_PROJECT_ID }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
